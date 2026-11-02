@@ -1,0 +1,7 @@
+node_modules/
+build/
+*.p12
+*.jks
+*.apk
+*.idsig
+.env

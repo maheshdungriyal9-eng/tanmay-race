@@ -1,0 +1,15 @@
+{
+  "name": "tanmay-race",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Tanmay Race: two-player racing and opt-in room voice chat",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node server.cjs"
+  },
+  "dependencies": {
+    "ws": "8.22.1"
+  }
+}
