@@ -1,7 +1,7 @@
 (function(){
   'use strict';
   const $=id=>document.getElementById(id),show=(id,on)=>$(id).hidden=!on;
-  const DEFAULT_SERVER = '';
+  const DEFAULT_SERVER = 'https://tanmay-race.onrender.com';
   let ws=null,id='',room=null,ui='closed',connecting=false,attempt=0,heartbeat=null,retry=null,lastPacket=0,peer=null,voiceErrorUntil=0;
   const voice=new RoomVoice(data=>{if(ws && ws.readyState===1 && ws.bufferedAmount<16384 && room)ws.send(data);},(label,on,error)=>{
     document.querySelectorAll('.mic-button').forEach(b=>{b.textContent=error?'MIC OFF':label;b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on));});
@@ -23,7 +23,7 @@
   function buttons(){['createRoom','joinRoom'].forEach(key=>$(key).disabled=connecting);}
   function open(){
     ui='form';show('menu',false);show('onlineScreen',true);show('connectForm',true);show('roomLobby',false);status('');
-    try{$('playerName').value=localStorage.getItem('tanmay.name') || ''; $('serverUrl').value=localStorage.getItem('tanmay.server') || DEFAULT_SERVER || (location.hostname!=='appassets.androidplatform.net' && /^https?:$/.test(location.protocol)?location.origin:'');}catch(_){}
+    try{$('playerName').value=localStorage.getItem('tanmay.name') || ''; $('serverUrl').value=localStorage.getItem('tanmay.server') || (location.hostname!=='appassets.androidplatform.net' && /^https?:$/.test(location.protocol)?location.origin:DEFAULT_SERVER);}catch(_){$('serverUrl').value=DEFAULT_SERVER;}
     $('serverSettings').open=!$('serverUrl').value;
   }
   async function enter(type){
@@ -35,7 +35,8 @@
     try{localStorage.setItem('tanmay.server',server);localStorage.setItem('tanmay.name',name);}catch(_){}
     voice.listen().catch(()=>{});
     const action={type,name,code};
-    if(ws && ws.readyState===1){send(action);return;}
+    if(ws && ws.readyState===1 && ws.url===server.replace(/^http/,'ws')+'/ws'){send(action);return;}
+    if(ws){ws.onclose=null;ws.close();ws=null;clearInterval(heartbeat);}
     connecting=true;buttons();status('Connecting… a sleeping free server may take about a minute.');
     const token=++attempt,deadline=Date.now()+75000;
     function connect(){
